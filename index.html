@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harivijay Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a 1280x820 stage that scales to fit. Page 1 is a laptop (about me),
+   page 2 is a microcontroller board with every project wired to it, page 3 is one project. */
+:root{
+  --bg:#0B1412; --grid:#1A2A25; --ink:#DDE9E4; --mute:#8CA39A;
+  --accent:#43D1A8; --amber:#E8A23A; --cyan:#5FD4FF;
+  --panel:#121C19; --panel-deep:#0E1A17; --screen:#0A1210;
+  --line:#1F302A; --edge:#2E4A40; --edge-hi:#3A5C50; --gold:#C9A24A;
+  --ico:#123A30; --ico-edge:#2E5A4C;
+  --f-display:'Archivo',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --f-body:'IBM Plex Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+i,b{display:block;font-style:normal}
+
+/* ---------- viewport and stage ---------- */
+#viewport{position:fixed;inset:0;overflow:hidden;background-color:var(--bg);background-image:radial-gradient(var(--grid) 1px,transparent 1px);background-size:24px 24px}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:820px;margin:-410px 0 0 -640px;transform:scale(var(--s,1));overflow:hidden}
+#m{display:none}
+
+/* ---------- traces ---------- */
+.base{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linejoin:round;opacity:0.4;stroke-dasharray:100;stroke-dashoffset:100}
+.pulse{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-dasharray:6 94;stroke-dashoffset:6;opacity:0;filter:drop-shadow(0 0 4px currentColor)}
+.via{opacity:0;fill:#0B1412;stroke:currentColor;stroke-width:2}
+.pad{opacity:0;fill:#C9A24A}
+.part{opacity:0;fill:#0B1412;stroke:currentColor;stroke-width:1.5}
+
+[data-page="2"] .bus .base,[data-page="2"] .fan .base,[data-page="3"] .up .base{animation:draw 1.1s cubic-bezier(.4,0,.2,1) both}
+[data-page="2"] .bus .pulse,[data-page="2"] .fan .pulse,[data-page="3"] .up .pulse{animation:travel 2.6s linear infinite}
+[data-page="2"] .bus .via,[data-page="2"] .bus .pad,[data-page="2"] .bus .part,[data-page="2"] .fan .via,[data-page="2"] .fan .pad,[data-page="2"] .fan .part,[data-page="3"] .up .via,[data-page="3"] .up .pad{animation:fadeIn .4s ease both}
+.bus,.fan,.up{transition:opacity .4s}
+[data-page="3"] .bus,[data-page="3"] .fan{opacity:0}
+[data-page="1"] .up,[data-page="2"] .up{opacity:0}
+
+@keyframes draw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes travel{0%{stroke-dashoffset:6;opacity:1}100%{stroke-dashoffset:-100;opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes nodeIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes mcuIn{from{opacity:0;transform:translateY(90px)}to{opacity:1;transform:none}}
+@keyframes unfold{from{clip-path:inset(50% 50% 50% 50% round 8px);opacity:0}to{clip-path:inset(0 0 0 0 round 8px);opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cabledot{0%{top:0;opacity:0}25%{opacity:1}100%{top:24px;opacity:0}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@keyframes ledpulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes spk{0%,100%{background:#2A3F37;box-shadow:none}50%{background:#43D1A8;box-shadow:0 0 8px #43D1A8}}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(67,209,168,.8)}100%{box-shadow:0 0 0 14px rgba(67,209,168,0)}}
+@keyframes sig{0%,100%{background:#2A3F37}50%{background:#43D1A8}}
+@keyframes antp{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* ---------- laptop ---------- */
+.lap{transform-origin:640px 0;transition:transform .95s cubic-bezier(.65,0,.25,1), opacity .5s}
+[data-page="2"] .lap{transform:translateY(16px) scale(.34)}
+[data-page="3"] .lap{transform:translateY(-40px) scale(.3);opacity:0}
+.glow{opacity:0;transition:opacity .6s .5s}
+[data-page="2"] .glow{opacity:1}
+
+/* ---------- page 1 next control ---------- */
+.nextbar{transition:opacity .35s}
+[data-page="2"] .nextbar,[data-page="3"] .nextbar{opacity:0;pointer-events:none}
+.next{transition:background .15s, box-shadow .15s}
+.next:hover,.next:focus-visible{background:rgba(67,209,168,.22) !important;box-shadow:0 0 22px rgba(67,209,168,.35);outline:none}
+.next:focus-visible{outline:2px solid #43D1A8;outline-offset:3px}
+.chev{animation:bob 1.2s ease-in-out infinite}
+.cdot{animation:cabledot 1.2s linear infinite}
+
+/* ---------- microcontroller ---------- */
+.mcuwrap{opacity:0;transition:opacity .4s}
+[data-page="2"] .mcuwrap,[data-page="3"] .mcuwrap{opacity:1}
+[data-page="2"] .mcuwrap{animation:mcuIn .9s cubic-bezier(.2,.8,.2,1) 1.25s both}
+.mcu{transition:transform .95s cubic-bezier(.65,0,.25,1)}
+[data-page="3"] .mcu{transform:translateY(200px) scale(.45)}
+.led{animation:ledpulse 1.6s ease-in-out infinite}
+
+/* ---------- project nodes ---------- */
+.node{position:absolute;width:280px;box-sizing:border-box;padding:0 16px;border:1.5px solid var(--edge);border-radius:6px;background:var(--panel);display:flex;align-items:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .35s, border-color .15s, background .15s, transform .15s}
+[data-page="2"] .node{opacity:1;pointer-events:auto;animation:nodeIn .6s cubic-bezier(.2,.8,.2,1) both}
+.node:hover,.node:focus-visible{border-color:#43D1A8 !important;background:#17251F !important;transform:translateY(-2px);outline:none}
+.node:focus-visible{box-shadow:0 0 0 3px #0B1412,0 0 0 5px #43D1A8}
+.ntxt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ntitle,.nsub,.npart{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ntitle{font-family:var(--f-display);font-weight:700;font-size:17px;line-height:1.1}
+.nsub{font-size:12px;color:var(--mute)}
+.npart{font-family:var(--f-mono);font-size:11px;color:var(--accent)}
+
+/* ---------- component icons ---------- */
+.ico{flex:none;position:relative;width:64px;height:52px;display:block}
+.ico>i{position:absolute}
+.pcb{position:absolute;left:0;top:0;width:64px;height:52px;box-sizing:border-box;background:var(--ico);border:1px solid var(--ico-edge);border-radius:4px}
+.emit{background:#5A2323}
+.node:hover .emit,.bench .emit{background:#FF5A4A;box-shadow:0 0 14px #FF5A4A}
+.spk{background:#2A3F37}
+.node:hover .spk,.bench .spk{animation:spk 1.2s ease-in-out infinite}
+.lcd{background:#1F3D33}
+.lcdbar{background:#2E5A4C}
+.node:hover .lcd,.bench .lcd{background:#9FE0B0;box-shadow:0 0 12px #9FE0B0}
+.node:hover .lcdbar,.bench .lcdbar{background:#0F2A22}
+.gps{background:#A99A6E}
+.node:hover .gps,.bench .gps{animation:ring 1.2s ease-out infinite}
+.sig{background:#2A3F37}
+.node:hover .sig,.bench .sig{animation:sig 1.2s ease-in-out infinite}
+.pin{background:#6B5A2A}
+.node:hover .pin,.bench .pin{background:#E8A23A;box-shadow:0 0 6px #E8A23A}
+.ant{opacity:.45}
+.node:hover .ant,.bench .ant{animation:antp 1s ease-in-out infinite}
+
+/* ---------- ui chrome ---------- */
+.b2,.b3,.hint{opacity:0;pointer-events:none;transition:opacity .35s, background .15s}
+[data-page="2"] .b2{opacity:1;pointer-events:auto}
+[data-page="3"] .b3{opacity:1;pointer-events:auto}
+[data-page="2"] .hint{opacity:1;transition-delay:3s}
+.pill{display:flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid #2E6A58;border-radius:999px;background:rgba(67,209,168,.08);font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.pill:hover,.pill:focus-visible{background:rgba(67,209,168,.22) !important;outline:none}
+.pill:focus-visible{box-shadow:0 0 0 2px #43D1A8}
+.homeico{width:16px;height:11px;box-sizing:border-box;border:1.5px solid currentColor;border-radius:2px}
+#pager{position:absolute;right:28px;top:18px;display:flex;align-items:center;gap:6px}
+#pager .pg{padding:9px 14px;font-size:14px;line-height:1}
+#pgLabel{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:0 8px;min-width:96px;text-align:center}
+.lapbtn{position:absolute;left:422px;top:16px;width:436px;height:258px;border:0;background:transparent;border-radius:12px;pointer-events:none}
+[data-page="2"] .lapbtn{pointer-events:auto}
+.lapbtn:hover,.lapbtn:focus-visible{background:rgba(67,209,168,.07);outline:2px solid rgba(67,209,168,.5)}
+
+/* ---------- project panel ---------- */
+.panel{opacity:0;pointer-events:none;transition:opacity .25s}
+[data-page="3"] .panel{opacity:1;pointer-events:auto;animation:unfold .85s cubic-bezier(.2,.8,.2,1) .9s both}
+.outline{fill:none;stroke:#43D1A8;stroke-width:2;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 5px #43D1A8)}
+[data-page="3"] .outline{animation:draw 1.2s ease-out .9s both}
+.st{opacity:0}
+[data-page="3"] .st{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.step{display:flex;gap:16px;align-items:flex-start}
+.slab{flex:none;width:76px;font-family:var(--f-mono);font-size:12px;color:var(--accent);padding-top:2px}
+.stxt{font-size:14px;line-height:1.5;min-width:0}
+.tag{font-family:var(--f-mono);font-size:12px;border:1px solid var(--edge);border-radius:3px;padding:3px 10px}
+.shot{flex:1;min-height:0;border:1.5px dashed var(--edge);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--mute);text-align:center;overflow:hidden}
+.shot.has-image{cursor:zoom-in}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shot iframe{width:100%;height:100%;border:0;display:block;background:#fff;pointer-events:none}
+.shot-gallery{position:relative;width:100%;height:100%}
+.shot-gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.shot-nav{position:absolute;top:50%;transform:translateY(-50%);border:1px solid var(--edge-hi);border-radius:999px;background:rgba(5,12,10,.8);padding:7px 11px;font-family:var(--f-mono);font-size:16px;line-height:1;color:var(--ink)}
+.shot-nav:hover,.shot-nav:focus-visible{background:rgba(67,209,168,.3);outline:none}
+.shot-prev{left:10px}
+.shot-next{right:10px}
+.shot-count{position:absolute;right:10px;bottom:8px;padding:3px 8px;border-radius:3px;background:rgba(5,12,10,.8);font-family:var(--f-mono);font-size:11px;color:var(--ink)}
+.shot:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.shot-modal{position:absolute;inset:20px;z-index:5;display:flex;align-items:center;justify-content:center;padding:56px 28px 28px;box-sizing:border-box;background:rgba(5,12,10,.96);border:1px solid var(--edge-hi);border-radius:8px}
+.shot-modal[hidden]{display:none}
+.shot-modal img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+.shot-modal iframe{width:100%;height:100%;border:0;display:block;background:#fff}
+.shot-modal.pdf-open{padding:28px}
+.shot-modal-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:1;border:1px solid var(--edge-hi);border-radius:999px;background:rgba(5,12,10,.8);padding:10px 15px;font-family:var(--f-mono);font-size:22px;line-height:1;color:var(--ink)}
+.shot-modal-nav:hover,.shot-modal-nav:focus-visible{background:rgba(67,209,168,.3);outline:none}
+.shot-modal-prev{left:18px}
+.shot-modal-next{right:18px}
+.shot-modal-count{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:4px 10px;border-radius:3px;background:rgba(5,12,10,.8);font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.shot-slide{animation:shotSlide .35s ease both}
+@keyframes shotSlide{from{opacity:.25;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.shot-close{position:absolute;right:18px;top:14px;border:1px solid var(--edge-hi);border-radius:999px;background:rgba(67,209,168,.08);padding:7px 14px;font-family:var(--f-mono);font-size:12px}
+.shot-close:hover,.shot-close:focus-visible{background:rgba(67,209,168,.22);outline:none}
+.project-nav{position:absolute;right:28px;top:18px;display:flex;align-items:center;gap:6px}
+.project-nav .pill{padding:9px 14px;font-size:14px;line-height:1}
+.project-nav-label{min-width:92px;text-align:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.repo{flex:none;font-family:var(--f-mono);font-size:13px;color:#08130F;background:var(--accent);border-radius:4px;padding:11px 16px;text-align:center}
+.repo:hover{text-decoration:none;background:#6FE0BF}
+.repo.off{opacity:.55}
+
+/* ---------- laptop screen content (shared with the phone layout) ---------- */
+.profile{flex:1;min-height:0;box-sizing:border-box;padding:22px 30px 0;display:flex;gap:34px}
+.p-left{width:318px;flex:none;display:flex;flex-direction:column;gap:11px}
+.p-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+.photo{width:148px;height:148px;box-sizing:border-box;border-radius:14px;border:1.5px solid var(--edge-hi);background:var(--panel);object-fit:cover}
+.photo.ph{display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--mute)}
+.pname{margin:0;font-family:var(--f-display);font-weight:800;font-size:38px;line-height:.98;letter-spacing:-.02em}
+.prole{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.status{align-self:flex-start;display:flex;align-items:center;gap:8px;border:1px solid #2E6A58;border-radius:999px;padding:4px 12px;font-size:12.5px}
+.status .dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.tagline{margin:0;font-size:13.5px;line-height:1.5}
+.contacts{display:flex;flex-direction:column;gap:5px;font-family:var(--f-mono);font-size:12px;color:var(--mute);overflow-wrap:anywhere}
+.cta{align-self:flex-start;font-family:var(--f-mono);font-size:12px;color:#08130F;background:var(--accent);border-radius:4px;padding:8px 14px}
+a.cta:hover{text-decoration:none;background:#6FE0BF}
+.lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.about{margin:6px 0 0;font-size:14px;line-height:1.55}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:6px;padding:11px 13px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.card .ct{font-size:13px;font-weight:600}
+.card .cb{font-size:12.5px;color:var(--mute);line-height:1.45}
+.card .cl{font-size:12.5px;line-height:1.5}
+.skills{margin-top:6px;font-family:var(--f-mono);font-size:12px;line-height:1.7}
+.skills .k1{color:var(--accent)}
+.skills .k2{color:var(--amber)}
+
+/* ---------- phone layout: plain stacked page ---------- */
+@media (max-width:860px){
+  #viewport{display:none}
+  html,body{height:auto}
+  #m{display:block;min-height:100vh;box-sizing:border-box;padding-inline:16px;padding-block:24px 48px;background-image:radial-gradient(var(--grid) 1px,transparent 1px);background-size:24px 24px}
+  #m .wrap{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+  #m .profile{flex-direction:column;padding:0;gap:24px}
+  #m .p-left{width:auto}
+  #m .cards{grid-template-columns:1fr}
+  #m .pname{font-size:40px}
+}
+.mh{margin:0 0 12px;font-family:var(--f-display);font-weight:800;font-size:26px;letter-spacing:-.01em}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mp{border:1.5px solid var(--edge);border-radius:6px;background:var(--panel);overflow:hidden}
+.mp.open{border-color:var(--accent)}
+.mpb{width:100%;box-sizing:border-box;display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;background:transparent}
+.mpb .chev2{margin-left:auto;flex:none;font-family:var(--f-mono);color:var(--accent);transition:transform .2s}
+.mp.open .chev2{transform:rotate(90deg)}
+.mpd{padding:2px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.mmeta{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+.msum{margin:0;font-size:15px;line-height:1.6}
+.mstat{display:flex;gap:14px;align-items:flex-start;border-top:2px solid var(--accent);padding-top:10px}
+.mstat b{flex:none;font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;color:var(--accent)}
+.mstat span{font-size:13px;line-height:1.4;color:var(--mute);padding-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.msteps{display:flex;flex-direction:column;gap:10px}
+.msteps .step{flex-direction:column;gap:2px}
+.msteps .slab{width:auto;padding-top:0}
+.mactions{display:flex;gap:8px;flex-wrap:wrap}
+.mactions a{flex:1;min-width:120px;box-sizing:border-box;font-family:var(--f-mono);font-size:13px;color:#08130F;background:var(--accent);border-radius:4px;padding:11px 14px;text-align:center}
+.mactions a:hover{text-decoration:none;background:#6FE0BF}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;transition-delay:0s !important}
+}
+</style>
+
+<div id="viewport">
+<div id="stage" data-page="1">
+
+<!-- circuits: laptop to microcontroller -->
+<svg class="bus" aria-hidden="true" width="1280" height="820" viewBox="0 0 1280 820" style="position:absolute;left:0;top:0">
+<path class="base" pathLength="100" d="M600 266 V330 L560 370 V455" style="color:#43D1A8;animation-delay:.5s"></path>
+<path class="pulse" pathLength="100" d="M600 266 V330 L560 370 V455" style="color:#43D1A8;animation-delay:1.8s"></path>
+<path class="base" pathLength="100" d="M620 266 V340 L600 360 V455" style="color:#E8A23A;animation-delay:.58s"></path>
+<path class="pulse" pathLength="100" d="M620 266 V340 L600 360 V455" style="color:#E8A23A;animation-delay:2.4s"></path>
+<path class="base" pathLength="100" d="M640 266 V455" style="color:#5FD4FF;animation-delay:.66s"></path>
+<path class="pulse" pathLength="100" d="M640 266 V455" style="color:#5FD4FF;animation-delay:2.0s"></path>
+<path class="base" pathLength="100" d="M660 266 V340 L680 360 V455" style="color:#43D1A8;animation-delay:.74s"></path>
+<path class="pulse" pathLength="100" d="M660 266 V340 L680 360 V455" style="color:#43D1A8;animation-delay:3.0s"></path>
+<path class="base" pathLength="100" d="M680 266 V330 L720 370 V455" style="color:#E8A23A;animation-delay:.82s"></path>
+<path class="pulse" pathLength="100" d="M680 266 V330 L720 370 V455" style="color:#E8A23A;animation-delay:2.2s"></path>
+<path class="base" pathLength="100" d="M470 258 V300 L500 330 V455" style="color:#5FD4FF;animation-delay:.9s"></path>
+<path class="pulse" pathLength="100" d="M470 258 V300 L500 330 V455" style="color:#5FD4FF;animation-delay:2.6s"></path>
+<path class="base" pathLength="100" d="M810 258 V300 L780 330 V455" style="color:#43D1A8;animation-delay:.98s"></path>
+<path class="pulse" pathLength="100" d="M810 258 V300 L780 330 V455" style="color:#43D1A8;animation-delay:3.2s"></path>
+<circle class="via" cx="560" cy="410" r="4" style="color:#43D1A8;animation-delay:1.4s"></circle>
+<circle class="via" cx="600" cy="400" r="4" style="color:#E8A23A;animation-delay:1.45s"></circle>
+<circle class="via" cx="680" cy="400" r="4" style="color:#43D1A8;animation-delay:1.5s"></circle>
+<circle class="via" cx="720" cy="410" r="4" style="color:#E8A23A;animation-delay:1.55s"></circle>
+<circle class="via" cx="500" cy="400" r="4" style="color:#5FD4FF;animation-delay:1.6s"></circle>
+<circle class="via" cx="780" cy="400" r="4" style="color:#43D1A8;animation-delay:1.65s"></circle>
+<rect class="part" x="633" y="340" width="14" height="8" rx="1" style="color:#5FD4FF;animation-delay:1.5s"></rect>
+<rect class="part" x="633" y="390" width="14" height="8" rx="1" style="color:#5FD4FF;animation-delay:1.55s"></rect>
+<rect class="pad" x="596" y="258" width="8" height="8" style="animation-delay:.4s"></rect>
+<rect class="pad" x="616" y="258" width="8" height="8" style="animation-delay:.4s"></rect>
+<rect class="pad" x="636" y="258" width="8" height="8" style="animation-delay:.4s"></rect>
+<rect class="pad" x="656" y="258" width="8" height="8" style="animation-delay:.4s"></rect>
+<rect class="pad" x="676" y="258" width="8" height="8" style="animation-delay:.4s"></rect>
+</svg>
+
+<!-- circuits: microcontroller to projects (generated from the project list) -->
+<svg class="fan" id="fan" aria-hidden="true" width="1280" height="820" viewBox="0 0 1280 820" style="position:absolute;left:0;top:0"></svg>
+
+<!-- circuits: microcontroller up into the project panel -->
+<svg class="up" aria-hidden="true" width="1280" height="820" viewBox="0 0 1280 820" style="position:absolute;left:0;top:0">
+<path class="base" pathLength="100" d="M622 702 V682 L580 640 V600" style="color:#43D1A8;animation-delay:.2s"></path>
+<path class="pulse" pathLength="100" d="M622 702 V682 L580 640 V600" style="color:#43D1A8;animation-delay:1.3s"></path>
+<path class="base" pathLength="100" d="M631 702 V661 L610 640 V600" style="color:#E8A23A;animation-delay:.27s"></path>
+<path class="pulse" pathLength="100" d="M631 702 V661 L610 640 V600" style="color:#E8A23A;animation-delay:1.9s"></path>
+<path class="base" pathLength="100" d="M640 702 V600" style="color:#5FD4FF;animation-delay:.34s"></path>
+<path class="pulse" pathLength="100" d="M640 702 V600" style="color:#5FD4FF;animation-delay:1.5s"></path>
+<path class="base" pathLength="100" d="M649 702 V661 L670 640 V600" style="color:#43D1A8;animation-delay:.41s"></path>
+<path class="pulse" pathLength="100" d="M649 702 V661 L670 640 V600" style="color:#43D1A8;animation-delay:2.2s"></path>
+<path class="base" pathLength="100" d="M658 702 V682 L700 640 V600" style="color:#E8A23A;animation-delay:.48s"></path>
+<path class="pulse" pathLength="100" d="M658 702 V682 L700 640 V600" style="color:#E8A23A;animation-delay:1.7s"></path>
+<circle class="via" cx="580" cy="620" r="3.5" style="color:#43D1A8;animation-delay:.9s"></circle>
+<circle class="via" cx="700" cy="620" r="3.5" style="color:#E8A23A;animation-delay:.9s"></circle>
+</svg>
+
+<!-- page 1: the laptop -->
+<div class="lap" id="lap" style="position:absolute;left:0;top:0;width:1280px;height:760px">
+<div style="position:absolute;left:70px;top:20px;width:1140px;height:680px;box-sizing:border-box;background:#121C19;border:2px solid #3A5C50;border-radius:18px">
+<div style="position:absolute;left:559px;top:8px;width:8px;height:8px;border-radius:50%;background:#0A1210;border:1px solid #2E4A40;box-sizing:border-box"></div>
+<div style="position:absolute;left:22px;top:22px;width:1092px;height:632px;background:#0A1210;border-radius:6px;overflow:hidden;display:flex;flex-direction:column">
+<div class="glow" style="position:absolute;left:0;top:0;width:1092px;height:632px;border-radius:6px;box-shadow:inset 0 0 0 3px #43D1A8,inset 0 0 60px rgba(67,209,168,.25);pointer-events:none;z-index:2"></div>
+<div style="flex:none;height:34px;box-sizing:border-box;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1F302A">
+<span style="display:flex;gap:7px"><i style="width:10px;height:10px;border-radius:50%;background:#C0453A"></i><i style="width:10px;height:10px;border-radius:50%;background:#E8A23A"></i><i style="width:10px;height:10px;border-radius:50%;background:#43D1A8"></i></span>
+<span style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:#8CA39A">harivijay · portfolio</span>
+<span style="width:50px"></span>
+</div>
+<div class="profile" id="screenProfile"></div>
+</div>
+</div>
+<div style="position:absolute;left:20px;top:700px;width:1240px;height:22px;box-sizing:border-box;background:linear-gradient(#1D2B27,#141F1C);border:2px solid #3A5C50;border-top:none;border-radius:0 0 20px 20px">
+<div style="position:absolute;left:518px;top:0;width:200px;height:8px;background:#0F1815;border-radius:0 0 8px 8px"></div>
+</div>
+</div>
+
+<!-- page 2: click the shrunken laptop to go home -->
+<button class="lapbtn" id="lapBtn" type="button" aria-label="Back to home page"></button>
+
+<!-- page 1: way to the next page -->
+<div class="nextbar" id="nextbar" style="position:absolute;left:0;top:722px;width:1280px;height:98px">
+<div style="position:absolute;left:637px;top:0;width:6px;height:28px;background:#2E4A40;border-radius:0 0 3px 3px">
+<i class="cdot" style="position:absolute;left:0;top:0;width:6px;height:6px;border-radius:50%;background:#43D1A8;box-shadow:0 0 8px #43D1A8"></i>
+</div>
+<button class="next" id="nextBtn" type="button" style="position:absolute;left:450px;top:30px;width:380px;height:52px;box-sizing:border-box;padding:0 20px;border:1.5px solid #43D1A8;border-radius:999px;background:rgba(67,209,168,.08);display:flex;align-items:center;justify-content:space-between;font-family:var(--f-mono);font-size:14px;letter-spacing:.05em">
+<span>Projects & Experience</span>
+<span style="display:flex;align-items:center;gap:12px">
+<span style="display:flex;align-items:center"><i style="width:26px;height:12px;box-sizing:border-box;border:1.5px solid #DDE9E4;border-radius:6px"></i><i style="width:8px;height:4px;background:#DDE9E4;margin-left:-17px"></i></span>
+<span class="chev" style="font-size:18px;color:#43D1A8">↓</span>
+</span>
+</button>
+</div>
+
+<!-- microcontroller -->
+<div class="mcuwrap" style="position:absolute;left:470px;top:455px;width:340px;height:170px">
+<div class="mcu" style="position:relative;width:340px;height:170px;transform-origin:170px 85px">
+<div style="position:absolute;left:0;top:0;width:340px;height:170px;box-sizing:border-box;background:#14463A;border:2px solid #4A8F78;border-radius:8px">
+<div style="position:absolute;left:24px;top:-6px;width:288px;height:8px;background:repeating-linear-gradient(90deg,#C9A24A 0 8px,transparent 8px 20px)"></div>
+<div style="position:absolute;left:24px;top:164px;width:288px;height:8px;background:repeating-linear-gradient(90deg,#C9A24A 0 8px,transparent 8px 20px)"></div>
+<div style="position:absolute;left:-6px;top:32px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:-6px;top:74px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:-6px;top:116px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:334px;top:32px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:334px;top:74px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:334px;top:116px;width:8px;height:18px;background:repeating-linear-gradient(180deg,#C9A24A 0 6px,transparent 6px 12px)"></div>
+<div style="position:absolute;left:120px;top:35px;width:96px;height:96px;box-sizing:border-box;background:#0A0F0E;border:1px solid #2E5A4C;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:#8CA39A">
+<span style="position:absolute;left:8px;top:8px;width:7px;height:7px;border-radius:50%;background:#2E5A4C"></span>MCU</div>
+<div style="position:absolute;left:-10px;top:14px;width:52px;height:34px;box-sizing:border-box;background:#9AA8A3;border:2px solid #C8D3CF;border-radius:3px"></div>
+<div style="position:absolute;left:250px;top:30px;width:14px;height:22px;background:#B08A4A;border-radius:2px"></div>
+<div style="position:absolute;left:272px;top:30px;width:14px;height:22px;background:#B08A4A;border-radius:2px"></div>
+<div style="position:absolute;left:260px;top:90px;width:18px;height:18px;border-radius:50%;background:#C0453A;border:2px solid #7A2A22;box-sizing:border-box"></div>
+<div class="led" style="position:absolute;left:44px;top:96px;width:8px;height:8px;border-radius:50%;background:#43D1A8;box-shadow:0 0 6px #43D1A8"></div>
+<div style="position:absolute;left:58px;top:93px;font-family:var(--f-mono);font-size:9px;color:#8CA39A">PWR</div>
+<div class="led" style="position:absolute;left:44px;top:114px;width:8px;height:8px;border-radius:50%;background:#E8A23A;box-shadow:0 0 6px #E8A23A;animation-delay:.5s"></div>
+<div style="position:absolute;left:58px;top:111px;font-family:var(--f-mono);font-size:9px;color:#8CA39A">TX</div>
+<div style="position:absolute;left:0;right:0;top:138px;text-align:center;font-family:var(--f-display);font-weight:800;font-size:17px;letter-spacing:.18em;color:#43D1A8">PROJECTS/EXPERIENCE</div>
+</div>
+</div>
+</div>
+
+<!-- project nodes (generated from the project list) -->
+<div id="nodes"></div>
+
+<!-- page 2 chrome -->
+<div class="hint" style="position:absolute;left:0;top:784px;width:1280px;text-align:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:#8CA39A">Touch a component to open its project</div>
+<button class="b2 pill" id="home2" type="button" style="position:absolute;left:28px;top:18px"><i class="homeico"></i>My Profile</button>
+<div class="b2" id="pager" hidden>
+<button class="pill pg" id="pgPrev" type="button" aria-label="Previous board">‹</button>
+<span id="pgLabel"></span>
+<button class="pill pg" id="pgNext" type="button" aria-label="Next board">›</button>
+</div>
+
+<!-- page 3 chrome -->
+<button class="b3 pill" id="back3" type="button" style="position:absolute;left:28px;top:18px">← My Projects</button>
+<button class="b3 pill" id="home3" type="button" style="position:absolute;left:206px;top:18px"><i class="homeico"></i>My Profile</button>
+<div class="b3 project-nav" aria-label="Project navigation">
+<button class="pill" id="projectPrev" type="button" aria-label="Previous project">‹</button>
+<span class="project-nav-label" id="projectNavLabel"></span>
+<button class="pill" id="projectNext" type="button" aria-label="Next project">›</button>
+</div>
+
+<div class="panel" id="panel" style="position:absolute;left:60px;top:64px;width:1160px;height:536px;box-sizing:border-box;background:#0E1A17;border-radius:8px;padding:34px 40px;display:flex;gap:44px">
+<svg aria-hidden="true" width="1160" height="536" viewBox="0 0 1160 536" style="position:absolute;left:0;top:0;pointer-events:none">
+<rect class="outline" pathLength="100" x="1" y="1" width="1158" height="534" rx="8"></rect>
+</svg>
+
+<div style="width:640px;flex:none;min-width:0;display:flex;flex-direction:column;gap:14px">
+<div class="st" id="pMeta" style="animation-delay:1.5s;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#E8A23A"></div>
+<h2 class="st" id="pTitle" style="animation-delay:1.6s;margin:0;font-family:var(--f-display);font-weight:800;font-size:52px;line-height:1;letter-spacing:-.02em"></h2>
+<p class="st" id="pSummary" style="animation-delay:1.7s;margin:0;font-size:15.5px;line-height:1.6;color:#DDE9E4"></p>
+<div class="st lbl" style="animation-delay:1.8s;margin-top:4px">How it works</div>
+<div id="pSteps" style="display:flex;flex-direction:column;gap:10px"></div>
+<div class="st" id="pTags" style="animation-delay:2.1s;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+</div>
+
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+<div class="st" style="animation-delay:1.6s;flex:none;height:150px;box-sizing:border-box;border:1px solid #2E4A40;border-radius:6px;background:#0A1210;position:relative;display:flex;align-items:center;justify-content:center">
+<div class="bench" id="pBench" style="position:relative;top:-8px;width:64px;height:52px;transform:scale(2.2)"></div>
+<div style="position:absolute;left:12px;bottom:8px;font-family:var(--f-mono);font-size:11px;color:#8CA39A">wired to: <span id="pPart" style="color:#43D1A8"></span></div>
+</div>
+<div class="st" style="animation-delay:1.8s;display:flex;gap:14px;align-items:flex-start;border-top:2px solid #43D1A8;padding-top:10px">
+<div id="pStat" style="flex:none;font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;color:#43D1A8"></div>
+<div id="pStatLabel" style="font-size:13px;line-height:1.4;color:#8CA39A;padding-top:2px"></div>
+</div>
+<div class="st shot" id="pShot" style="animation-delay:2.0s"></div>
+<a class="st repo" id="pRepo" style="animation-delay:2.2s"></a>
+</div>
+</div>
+
+<div class="shot-modal" id="shotModal" hidden role="dialog" aria-modal="true" aria-label="Full project screenshot">
+<button class="shot-close" id="shotClose" type="button">Close ×</button>
+<img id="shotFull" alt="">
+<iframe id="shotFullPdf" title="Full project poster" hidden></iframe>
+<button class="shot-modal-nav shot-modal-prev" id="shotModalPrev" type="button" aria-label="Previous screenshot" hidden>‹</button>
+<button class="shot-modal-nav shot-modal-next" id="shotModalNext" type="button" aria-label="Next screenshot" hidden>›</button>
+<span class="shot-modal-count" id="shotModalCount" hidden></span>
+</div>
+
+</div>
+</div>
+
+<!-- phone layout (shown only on narrow screens) -->
+<div id="m"><div class="wrap">
+<div class="profile" id="mProfile"></div>
+<section>
+<h2 class="mh">Projects</h2>
+<div class="mlist" id="mList"></div>
+</section>
+</div></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     1. YOUR DETAILS
+     ============================================================ */
+  var PROFILE = {
+    name: ['Harivijay', 'Gunaseelan'],
+    role: 'Computer Engineering · Waterloo',
+    status: 'Open to co-op and internship roles',
+    tagline: 'I build firmware for sensor boards and the software that sits around it.',
+    email: 'hrathina@uwaterloo.ca',
+    github: 'https://github.com/28harivijay',
+    linkedin: 'https://www.linkedin.com/in/harivijay-rg',
+    place: 'Waterloo, Ontario',
+    photo: '',    // e.g. 'img/me.jpg'  (leave '' to show the [YOUR PHOTO] box)
+    resume: '',   // e.g. 'resume.pdf'  (leave '' to show [ADD LINK])
+    about: 'Second-year Computer Engineering student at the University of Waterloo. I like the work where a sensor reading turns into something useful: C++ firmware on ESP32 boards, plus Python services for the AI side. [ADD: one line about what you do outside of code]',
+    cards: [
+      { label: 'Education', title: 'BASc Computer Engineering', body: 'University of Waterloo, 2025 to present. Digital Computers, Numerical Methods, C++ (DSA, OOP), Embedded Systems.' },
+      { label: 'Experience', title: 'Accessibility Review Team Member', body: 'University of Waterloo, Jun to Aug 2026. Audited 3 PD courses against WCAG and wrote the compliance reports.' },
+      { label: 'Credentials', lines: ['freeCodeCamp Python Developer (300 h)', 'MATLAB Onramp, MathWorks', 'Silver Medal, National Science Olympiad', 'WHMIS certified'] },
+      { label: 'Research and involvement', lines: ['Neuromorphic Computing for Edge AI, technical poster, Nov 2025', 'Orientation Leader, Fall O-Week'] }
+    ],
+    skillsPrimary: 'C++, Embedded C++ (Arduino), Python, ESP32, I²C',
+    skillsAlso: 'JavaScript, C#, MATLAB, FastAPI, Django, React, LangChain, FAISS, Scikit-learn, Git'
+  };
+
+  /* ============================================================
+     2. YOUR PROJECTS  (this list is the whole board)
+     To add a project, copy one block below and paste it at the end.
+       id       short unique word, no spaces
+       icon     which little component to draw on the board:
+                sensor | spikes | lcd | gps | wifi | sd | mcu | pi | ultra
+       title    big name on the project page
+       short    (optional) shorter name for the board card
+       sub      grey line on the board card
+       part     green line on the board card, and the "wired to" label
+       repo     GitHub link (leave '' until you have it)
+       shot     screenshot path, e.g. 'img/prism.png' (leave '')
+     The board lays itself out: up to 7 projects per board, and a
+     "board 1 / 2" switcher appears once you go past that.
+     ============================================================ */
+  var PROJECTS = [
+    {
+      id: 'prism', icon: 'sensor', title: 'PRISM', sub: 'Wearable · ESP32', part: 'SpO₂ sensor',
+      meta: 'Hardware Lead · Nov 2025',
+      summary: 'PRISM is a wearable that watches for hospital-induced delirium (HID). It reads biomedical sensors on an ESP32 and helped cut nursing monitoring workload by 20%, with faster clinical response. I led the hardware side.',
+      steps: [
+        { label: 'Sense', text: 'SpO₂ and accelerometer sensors stream data over I²C.' },
+        { label: 'Process', text: 'C++ firmware on the ESP32 handles continuous acquisition, with buffering tuned to limit data loss under live conditions.' },
+        { label: 'Prove', text: 'I benchmarked the ESP32 against an Arduino Nano R4 Minima and measured 15× faster handling of the sensor streams.' }
+      ],
+      stat: '15×', statLabel: 'faster SpO₂ and accelerometer stream handling than the Arduino Nano R4 Minima',
+      tags: ['ESP32', 'C++ (Arduino)', 'I²C', 'SpO₂', 'Accelerometer'], repo: '', shot: '', shots: ['circuit.jpeg', 'view.jpeg', 'wearable.jpeg']
+    },
+    {
+      id: 'neuro', icon: 'spikes', title: 'Neuromorphic Edge AI', short: 'Neuromorphic AI', sub: 'Research · Edge AI', part: 'LED spike array',
+      meta: 'Research presentation · Nov 2025',
+      summary: 'A research presentation on neuromorphic computing as an answer to the energy cost of AI inference on edge devices. Spiking neural networks compute in an event-driven way and can use far less power than conventional deep learning models.',
+      steps: [
+        { label: 'Problem', text: 'Edge AI inference is energy hungry, which matters most on small devices.' },
+        { label: 'Method', text: 'I compared STDP and surrogate-gradient learning across 5+ peer-reviewed studies.' },
+        { label: 'Result', text: 'Looked at convergence speed and inference accuracy, then shared it as a technical poster on event-driven neural computation.' }
+      ],
+      stat: '10–100×', statLabel: 'lower power than conventional deep learning models, per the research reviewed',
+      tags: ['Spiking neural networks', 'STDP', 'Surrogate gradients', 'Edge AI'], repo: '', shot: 'poster.pdf'
+    },
+    {
+      id: 'jobrec', icon: 'lcd', title: 'Job Recommender', sub: 'ML · Django', part: '16×2 LCD',
+      meta: 'Personal project · Mar 2026',
+      summary: 'A platform that matches a person’s skills to open roles. It learned from 500+ real postings across 20+ companies and shows the top 10 matches with salary estimates in a web dashboard in under 5 seconds.',
+      steps: [
+        { label: 'Match', text: 'A random forest classifier matches skillsets to roles.' },
+        { label: 'Predict', text: 'Regression estimates salary, and K-Means clustering groups postings for targeting.' },
+        { label: 'Check', text: 'Validated with an 80/20 train-test split and accuracy scoring, then served through Django and Bootstrap.' }
+      ],
+      stat: '500+', statLabel: 'real postings across 20+ companies',
+      tags: ['Python', 'Pandas', 'Scikit-learn', 'Django', 'Bootstrap'], repo: 'https://github.com/28harivijay/job-recommendation-platform', shot: '', shots: ['AJP-1.png', 'AJP-2.png', 'AJP-3.png', 'AJP-4.png']
+    },
+    {
+      id: 'goose', icon: 'gps', title: 'Goose Hunt', sub: 'Hackathon game', part: 'GPS module',
+      meta: 'ENGHacks · Front-end developer · Mar 2026',
+      summary: 'A real-time, location-based multiplayer game built in 12 hours at ENGHacks with a team of four. Players move in the real world while the safe zone shrinks, battle royale style. I built the front end.',
+      steps: [
+        { label: 'Map', text: 'Leaflet.js tracks live geolocation and draws the play zone.' },
+        { label: 'Shrink', text: 'The zone updates in real time as players move.' },
+        { label: 'Lobby', text: 'Players create sessions and share join codes, across 4+ pages connected to my teammates’ REST backend.' }
+      ],
+      stat: '12 h', statLabel: 'hackathon build with a 4-person team, shipped and playable',
+      tags: ['JavaScript', 'Leaflet.js', 'REST'], repo: '', shot: ''
+    },
+    {
+      id: 'prbot', icon: 'wifi', title: 'PR Review Bot', sub: 'GitHub bot · LangChain', part: 'Wi-Fi module',
+      meta: 'Personal project · Apr 2026',
+      summary: 'Every new pull request triggers a code review automatically, with nobody running anything by hand. The bot reads the diff and returns categorized feedback on bugs, readability and improvements.',
+      steps: [
+        { label: 'Trigger', text: 'A GitHub webhook fires when a pull request opens and reaches a FastAPI server.' },
+        { label: 'Review', text: 'The bot fetches the diff through the GitHub REST API and runs it through LangChain prompt chains to Groq (LLaMA 3.3).' },
+        { label: 'Connect', text: 'A Cloudflare Tunnel exposes the local server to GitHub, so reviews finish 10 to 15 seconds after a PR opens.' }
+      ],
+      stat: '10–15 s', statLabel: 'from a new pull request to a finished review',
+      tags: ['FastAPI', 'LangChain', 'Groq', 'GitHub API', 'Webhooks', 'Cloudflare Tunnel'], repo: 'https://github.com/28harivijay/ai-pr-review-bot', shot: '', shots: ['code.png', 'review.png']
+    },
+    {
+      id: 'documind', icon: 'sd', title: 'DocuMind', sub: 'RAG app · FastAPI', part: 'microSD module',
+      meta: 'Personal project · Apr 2026',
+      summary: 'Upload a PDF, Word or Excel file and ask questions about it in plain English. Answers are grounded in the document’s own content, so there is no hunting through pages. React and Tailwind on the front, FastAPI behind it.',
+      steps: [
+        { label: 'Ingest', text: 'Files are split with recursive text splitting into 500-token chunks with a 50-token overlap.' },
+        { label: 'Retrieve', text: 'HuggingFace embeddings go into a FAISS index, and the closest chunks are pulled for each question.' },
+        { label: 'Answer', text: 'LangChain passes those chunks to Groq, which writes an answer based on the document.' }
+      ],
+      stat: '3', statLabel: 'file types supported: PDF, DOCX and XLSX',
+      tags: ['React', 'Tailwind CSS', 'FastAPI', 'LangChain', 'FAISS', 'HuggingFace'], repo: '', shot: ''
+    },
+    {
+      id: 'project7', icon: 'pi', title: '[PROJECT NAME]', sub: '[ADD: short description]', part: 'Raspberry Pi',
+      meta: '[ADD: project type · date]',
+      summary: '[ADD: two or three sentences on what this project is, who it is for, and what you built.]',
+      steps: [
+        { label: 'Build', text: '[ADD: what you made and with what.]' },
+        { label: 'Solve', text: '[ADD: the hardest part and how you got past it.]' },
+        { label: 'Result', text: '[ADD: what it can do now.]' }
+      ],
+      stat: '[N]', statLabel: '[ADD: your best number or result]',
+      tags: ['[Tag]', '[Tag]', '[Tag]'], repo: '', shot: ''
+    }
+  ];
+
+  /* ============================================================
+     3. COMPONENT ICONS (64 x 52 drawings shown on cards)
+     ============================================================ */
+  var ICONS = {
+    sensor:
+      '<span class="pcb"></span>' +
+      '<i class="emit" style="left:10px;top:10px;width:22px;height:22px;border-radius:50%"></i>' +
+      '<i style="left:40px;top:14px;width:14px;height:14px;box-sizing:border-box;background:#1E2B27;border:1px solid #3A5C50;border-radius:2px"></i>' +
+      '<i style="left:8px;top:40px;width:48px;height:4px;background:repeating-linear-gradient(90deg,#C9A24A 0 4px,transparent 4px 8px)"></i>',
+    spikes:
+      '<span class="pcb"></span>' +
+      '<span style="position:absolute;left:1px;top:0;height:52px;display:flex;align-items:center;gap:3px;padding-left:2px">' +
+      [10, 24, 14, 30, 8, 26, 16, 22].map(function (h, n) {
+        return '<i class="spk" style="width:5px;height:' + h + 'px;border-radius:2px;animation-delay:' + (n * 0.15).toFixed(2) + 's"></i>';
+      }).join('') + '</span>',
+    lcd:
+      '<span class="pcb"></span>' +
+      '<span class="lcd" style="position:absolute;left:6px;top:8px;width:52px;height:34px;box-sizing:border-box;border:2px solid #3A5C50;border-radius:3px;padding:7px 6px;display:flex;flex-direction:column;gap:5px">' +
+      '<i class="lcdbar" style="width:36px;height:5px;border-radius:1px"></i><i class="lcdbar" style="width:22px;height:5px;border-radius:1px"></i></span>',
+    gps:
+      '<span class="pcb"></span>' +
+      '<i class="gps" style="left:12px;top:6px;width:40px;height:40px;box-sizing:border-box;border:1px solid #E5D9AE;border-radius:2px"></i>' +
+      '<i style="left:31px;top:12px;width:2px;height:28px;background:#7C6F4D"></i>' +
+      '<i style="left:18px;top:25px;width:28px;height:2px;background:#7C6F4D"></i>',
+    wifi:
+      '<span class="pcb"></span>' +
+      '<i style="left:8px;top:14px;width:24px;height:24px;background:#8E9C97;border-radius:2px"></i>' +
+      '<i class="sig" style="left:38px;top:30px;width:5px;height:10px;border-radius:1px;animation-delay:0s"></i>' +
+      '<i class="sig" style="left:46px;top:22px;width:5px;height:18px;border-radius:1px;animation-delay:.2s"></i>' +
+      '<i class="sig" style="left:54px;top:14px;width:5px;height:26px;border-radius:1px;animation-delay:.4s"></i>',
+    sd:
+      '<span class="pcb"></span>' +
+      '<i style="left:14px;top:4px;width:36px;height:44px;background:#8CA39A;clip-path:polygon(0 0,68% 0,100% 20%,100% 100%,0 100%)"></i>' +
+      '<span style="position:absolute;left:19px;top:8px;display:flex;gap:3px">' +
+      '<i class="pin" style="width:4px;height:10px"></i><i class="pin" style="width:4px;height:10px"></i><i class="pin" style="width:4px;height:10px"></i><i class="pin" style="width:4px;height:10px"></i></span>',
+    ultra:
+      '<span class="pcb"></span>' +
+      '<i class="ant" style="left:7px;top:8px;width:21px;height:21px;box-sizing:border-box;border:3px solid #9AA8A3;border-radius:50%;background:#0A1210"></i>' +
+      '<i class="ant" style="left:36px;top:8px;width:21px;height:21px;box-sizing:border-box;border:3px solid #9AA8A3;border-radius:50%;background:#0A1210"></i>' +
+      '<i style="left:12px;top:37px;width:40px;height:8px;background:repeating-linear-gradient(90deg,#C9A24A 0 6px,transparent 6px 12px)"></i>',
+    mcu:
+      '<span class="pcb"></span>' +
+      '<i style="left:6px;top:3px;width:52px;height:3px;background:repeating-linear-gradient(90deg,#C9A24A 0 3px,transparent 3px 6px)"></i>' +
+      '<i style="left:6px;top:46px;width:52px;height:3px;background:repeating-linear-gradient(90deg,#C9A24A 0 3px,transparent 3px 6px)"></i>' +
+      '<i style="left:8px;top:12px;width:26px;height:26px;background:#8E9C97;border-radius:2px"></i>' +
+      '<i class="emit" style="left:40px;top:12px;width:8px;height:8px;border-radius:50%"></i>' +
+      '<i class="ant" style="left:38px;top:24px;width:20px;height:14px;background:repeating-linear-gradient(90deg,#C9A24A 0 3px,transparent 3px 6px)"></i>',
+    pi:
+      '<span class="pcb"></span>' +
+      '<i style="left:6px;top:4px;width:40px;height:2px;background:repeating-linear-gradient(90deg,#C9A24A 0 2px,transparent 2px 4px)"></i>' +
+      '<i style="left:6px;top:8px;width:40px;height:2px;background:repeating-linear-gradient(90deg,#C9A24A 0 2px,transparent 2px 4px)"></i>' +
+      '<i style="left:12px;top:18px;width:18px;height:18px;box-sizing:border-box;background:#8E9C97;border-radius:2px"></i>' +
+      '<i style="left:17px;top:23px;width:8px;height:8px;background:#5E6F69;border-radius:1px"></i>' +
+      '<i style="left:47px;top:13px;width:18px;height:13px;box-sizing:border-box;background:#A6B3AE;border:1px solid #5E6F69;border-radius:2px 0 0 2px"></i>' +
+      '<i style="left:47px;top:28px;width:18px;height:12px;box-sizing:border-box;background:#A6B3AE;border:1px solid #5E6F69;border-radius:2px 0 0 2px"></i>' +
+      '<i style="left:8px;top:46px;width:9px;height:6px;background:#8E9C97;border-radius:1px 1px 0 0"></i>' +
+      '<i style="left:22px;top:46px;width:13px;height:6px;background:#8E9C97;border-radius:1px 1px 0 0"></i>' +
+      '<i class="emit" style="left:40px;top:42px;width:4px;height:4px;border-radius:50%"></i>'
+  };
+  function icon(k) { return ICONS[k] || ICONS.mcu; }
+
+  /* ============================================================
+     4. HELPERS
+     ============================================================ */
+  var CAP = 7;                       // projects per board (3 left + 3 right + 1 under the board)
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function byId(id) { for (var i = 0; i < PROJECTS.length; i++) if (PROJECTS[i].id === id) return PROJECTS[i]; return null; }
+  function boards() { return Math.max(1, Math.ceil(PROJECTS.length / CAP)); }
+  function boardRange(b) {         // split evenly, so 10 projects become 5 + 5 and not 9 + 1
+    var nb = boards(), base = Math.floor(PROJECTS.length / nb), extra = PROJECTS.length % nb, start = 0;
+    for (var k = 0; k < b; k++) start += base + (k < extra ? 1 : 0);
+    return [start, start + base + (b < extra ? 1 : 0)];
+  }
+  function boardOf(id) {
+    for (var b = 0; b < boards(); b++) {
+      var r = boardRange(b);
+      for (var i = r[0]; i < r[1]; i++) if (PROJECTS[i].id === id) return b;
+    }
+    return 0;
+  }
+  function cardName(p) { return p.short || p.title; }
+
+  /* ============================================================
+     5. BOARD LAYOUT
+     n projects on one board: n/2 on each side, plus one under the
+     board when n is odd. Rows are centred on the microcontroller.
+     ============================================================ */
+  function slots(n) {
+    var side = Math.floor(n / 2), out = [];
+    function col(name) {
+      for (var i = 0; i < side; i++) {
+        var o = i - (side - 1) / 2;
+        out.push({ side: name, row: i, cy: 540 + o * 140, port: 540 + o * 42, h: 96 });
+      }
+    }
+    col('L'); col('R');
+    if (n % 2) out.push({ side: 'B', cy: 712, h: 96 });
+    return out;
+  }
+
+  // trace colours per row: [first wire, second wire]
+  var COLS = {
+    L: [['#43D1A8', '#E8A23A'], ['#5FD4FF', '#43D1A8'], ['#E8A23A', '#43D1A8']],
+    R: [['#43D1A8', '#5FD4FF'], ['#E8A23A', '#5FD4FF'], ['#43D1A8', '#E8A23A']]
+  };
+  function f(x) { return Math.round(x * 100) / 100; }
+
+  // The glowing wires from the board to each card, same shapes as the hand-drawn design.
+  function fanSVG(sl, t0) {
+    var s = '', k = t0 - 1.9;                      // k shifts the original timings
+    sl.forEach(function (p) {
+      if (p.side === 'B') {
+        [
+          ['M620 625 V636 L606 650 V664', '#43D1A8', 2.2, 4.0],
+          ['M640 625 V664', '#5FD4FF', 2.25, 3.6],
+          ['M660 625 V636 L674 650 V664', '#E8A23A', 2.3, 4.2]
+        ].forEach(function (t) {
+          s += '<path class="base" pathLength="100" d="' + t[0] + '" style="color:' + t[1] + ';animation-delay:' + f(t[2] + k) + 's"></path>';
+          s += '<path class="pulse" pathLength="100" d="' + t[0] + '" style="color:' + t[1] + ';animation-delay:' + f(t[3] + k) + 's"></path>';
+        });
+        s += '<rect class="part" x="633" y="640" width="14" height="8" rx="1" style="color:#5FD4FF;animation-delay:' + f(2.7 + k) + 's"></rect>';
+        [602, 636, 670].forEach(function (x) {
+          s += '<rect class="pad" x="' + x + '" y="656" width="8" height="8" style="animation-delay:' + f(2.8 + k) + 's"></rect>';
+        });
+        return;
+      }
+      var left = p.side === 'L', sg = left ? -1 : 1, px = left ? 470 : 810, cx = left ? 320 : 960;
+      [0, 1].forEach(function (j) {
+        var y0 = p.port - 6 + 12 * j, y1 = p.cy - 6 + 12 * j, ad = Math.abs(y1 - y0), d, x2 = px;
+        var col = COLS[p.side][p.row % 3][j], t = t0 + 0.1 * p.row + 0.05 * j;
+        if (ad < 8) {
+          if (j === 0) {      // straight row: first wire zig-zags, second stays flat
+            d = 'M' + px + ' ' + y1 + ' H' + (px + sg * 50) + ' L' + (px + sg * 58) + ' ' + (y1 - 8) + ' H' + (px + sg * 100) + ' L' + (px + sg * 108) + ' ' + y1 + ' H' + cx;
+          } else {
+            d = 'M' + px + ' ' + y1 + ' H' + cx;
+            s += '<rect class="part" x="' + (left ? 395 : 871) + '" y="' + (y1 - 3) + '" width="14" height="6" rx="1" style="color:' + col + ';animation-delay:' + f(t0 + 0.7) + 's"></rect>';
+          }
+        } else {
+          var x1 = px + sg * (30 + 10 * j); x2 = x1 + sg * ad;
+          d = 'M' + px + ' ' + y0 + ' H' + x1 + ' L' + x2 + ' ' + y1 + ' H' + cx;
+        }
+        s += '<path class="base" pathLength="100" d="' + d + '" style="color:' + col + ';animation-delay:' + f(t) + 's"></path>';
+        s += '<path class="pulse" pathLength="100" d="' + d + '" style="color:' + col + ';animation-delay:' + f(t + 1.5 + ((p.row * 2 + j) % 4) * 0.2) + 's"></path>';
+        s += '<rect class="pad" x="' + (left ? cx - 8 : cx) + '" y="' + (y1 - 4) + '" width="8" height="8" style="animation-delay:' + f(t0 + 0.8) + 's"></rect>';
+        if (j === 0 && ad >= 8) {
+          s += '<circle class="via" cx="' + x2 + '" cy="' + y1 + '" r="3.5" style="color:' + col + ';animation-delay:' + f(t0 + 0.8) + 's"></circle>';
+        }
+      });
+    });
+    return s;
+  }
+
+  function nodeHTML(p, slot, i, t0) {
+    var pos = slot.side === 'B'
+      ? 'left:500px;top:664px;height:96px'
+      : 'left:' + (slot.side === 'L' ? 40 : 960) + 'px;top:' + (slot.cy - slot.h / 2) + 'px;height:' + slot.h + 'px';
+    return '<button class="node" type="button" data-id="' + esc(p.id) + '" style="' + pos + ';animation-delay:' + f(t0 + 0.2 + 0.15 * i) + 's">' +
+      '<span class="ico">' + icon(p.icon) + '</span>' +
+      '<span class="ntxt"><span class="ntitle">' + esc(cardName(p)) + '</span><span class="nsub">' + esc(p.sub) + '</span><span class="npart">' + esc(p.part) + '</span></span>' +
+      '</button>';
+  }
+
+  /* ============================================================
+     6. PAGE STATE
+     ============================================================ */
+  var stage = $('#stage'), nodesEl = $('#nodes'), fanEl = $('#fan');
+  var state = { page: 1, bank: 0, id: null, shotIndex: 0 };
+  var drawn = -1;
+  var shotTimer = null;
+
+  function renderBoard(fast) {
+    var r = boardRange(state.bank), items = PROJECTS.slice(r[0], r[1]), sl = slots(items.length), t0 = fast ? 0.1 : 1.9;
+    nodesEl.innerHTML = items.map(function (p, i) { return nodeHTML(p, sl[i], i, t0); }).join('');
+    fanEl.innerHTML = fanSVG(sl, t0);
+    drawn = state.bank;
+  }
+
+  function fillPanel(p, instant) {
+    $('#pMeta').textContent = p.meta;
+    $('#pTitle').textContent = p.title;
+    $('#pSummary').textContent = p.summary;
+    $('#pSteps').innerHTML = p.steps.map(function (s, i) {
+      return '<div class="' + (instant ? 'step' : 'st step') + '"' +
+        (instant ? '' : ' style="animation-delay:' + f(1.9 + 0.08 * i) + 's"') +
+        '><span class="slab">' + esc(s.label) + '</span><span class="stxt">' + esc(s.text) + '</span></div>';
+    }).join('');
+    $('#pTags').innerHTML = p.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+    $('#pBench').innerHTML = '<div class="ico">' + icon(p.icon) + '</div>';
+    $('#pPart').textContent = p.part;
+    $('#pStat').textContent = p.stat;
+    $('#pStatLabel').textContent = p.statLabel;
+    var shot = $('#pShot');
+    var shots = p.shots && p.shots.length ? p.shots : (p.shot ? [p.shot] : []);
+    state.shotIndex = 0;
+    var canOpenShot = (p.id === 'neuro' || p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && shots.length > 0;
+    shot.classList.toggle('has-image', canOpenShot);
+    shot.toggleAttribute('role', canOpenShot);
+    if (canOpenShot) {
+      shot.setAttribute('tabindex', '0');
+      shot.setAttribute('aria-label', 'Open full screenshot of ' + p.title);
+    } else {
+      shot.removeAttribute('tabindex');
+      shot.removeAttribute('aria-label');
+    }
+    var isPdf = /\.pdf(?:$|[?#])/i.test(shots[0] || '');
+    if (!shots.length) {
+      shot.innerHTML = '[SCREENSHOT OR DEMO]';
+    } else if (isPdf) {
+      shot.innerHTML = '<iframe src="' + esc(shots[0]) + '" title="Preview of ' + esc(p.title) + '"></iframe>';
+    } else if (shots.length === 1) {
+      shot.innerHTML = '<img src="' + esc(shots[0]) + '" alt="Screenshot of ' + esc(p.title) + '">';
+    } else {
+      shot.innerHTML = '<div class="shot-gallery"><img src="' + esc(shots[0]) + '" alt="Screenshot 1 of ' + esc(p.title) + '">' +
+        '<button class="shot-nav shot-prev" type="button" aria-label="Previous screenshot">‹</button>' +
+        '<button class="shot-nav shot-next" type="button" aria-label="Next screenshot">›</button>' +
+        '<span class="shot-count">1 / ' + shots.length + '</span></div>';
+    }
+    $('#shotModalPrev').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
+    $('#shotModalNext').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
+    $('#shotModalCount').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
+    startShotSlideshow(p);
+    var repo = $('#pRepo');
+    if (p.id === 'neuro' && p.shot) {
+      repo.className = 'st repo';
+      repo.href = p.shot;
+      repo.download = 'neuromorphic-edge-ai-poster.pdf';
+      repo.removeAttribute('target');
+      repo.removeAttribute('rel');
+      repo.textContent = 'Download poster PDF';
+    } else if (p.repo) {
+      repo.className = 'st repo'; repo.href = p.repo; repo.target = '_blank'; repo.rel = 'noopener'; repo.textContent = 'View repository';
+      repo.removeAttribute('download');
+    } else {
+      repo.className = 'st repo off'; repo.removeAttribute('href'); repo.removeAttribute('target'); repo.removeAttribute('download'); repo.textContent = 'View repository [ADD REPO URL]';
+    }
+  }
+
+  function chrome() {
+    var p = state.page;
+    $('#nextbar').inert = p !== 1;
+    $('#lap').inert = p !== 1;
+    nodesEl.inert = p !== 2;
+    $('#lapBtn').inert = p !== 2;
+    $$('.b2').forEach(function (e) { e.inert = p !== 2; });
+    $$('.b3').forEach(function (e) { e.inert = p !== 3; });
+    $('#panel').inert = p !== 3;
+    var nb = boards();
+    $('#pager').hidden = nb < 2;
+    $('#pgLabel').textContent = 'Board ' + (state.bank + 1) + ' / ' + nb;
+    var projectIndex = -1;
+    for (var i = 0; i < PROJECTS.length; i++) if (PROJECTS[i].id === state.id) { projectIndex = i; break; }
+    $('#projectNavLabel').textContent = projectIndex < 0 ? '' : (projectIndex + 1) + ' / ' + PROJECTS.length;
+  }
+
+  function hashFor() {
+    if (state.page === 2) return 'board' + (state.bank ? '-' + (state.bank + 1) : '');
+    if (state.page === 3) return 'project-' + state.id;
+    return 'home';
+  }
+  function writeHash() {
+    try { if (location.hash.slice(1) !== hashFor()) location.hash = hashFor(); } catch (e) { /* sandboxed frames may refuse */ }
+  }
+  function readHash() {
+    var h = ''; try { h = location.hash.slice(1); } catch (e) { }
+    var m;
+    if (h.indexOf('project-') === 0 && byId(h.slice(8))) return { page: 3, id: h.slice(8), bank: boardOf(h.slice(8)) };
+    if ((m = /^board(?:-(\d+))?$/.exec(h))) return { page: 2, bank: Math.min(boards() - 1, (+m[1] || 1) - 1) };
+    return { page: 1 };
+  }
+
+  function go(page, o) {
+    o = o || {};
+    var prev = state.page;
+    if (o.id !== undefined) state.id = o.id;
+    if (o.bank !== undefined) { var nb = boards(); state.bank = ((o.bank % nb) + nb) % nb; }
+    state.page = page;
+    if (page === 3) fillPanel(byId(state.id), prev === 3);
+    if (page === 2 && drawn !== state.bank) renderBoard(prev === 2);
+    stage.dataset.page = String(page);
+    chrome();
+    if (!o.fromHash) writeHash();
+  }
+
+  function moveProject(delta) {
+    var index = -1;
+    for (var i = 0; i < PROJECTS.length; i++) if (PROJECTS[i].id === state.id) { index = i; break; }
+    if (index < 0 || !PROJECTS.length) return;
+    var next = (index + delta + PROJECTS.length) % PROJECTS.length;
+    go(3, { id: PROJECTS[next].id });
+  }
+
+  function fromHash() {
+    var t = readHash();
+    if (t.page === state.page && (t.page !== 3 || t.id === state.id) && (t.bank === undefined || t.bank === state.bank)) return;
+    go(t.page, { id: t.id, bank: t.bank, fromHash: true });
+  }
+
+  /* ============================================================
+     7. LAPTOP SCREEN + PHONE LAYOUT
+     ============================================================ */
+  function profileHTML() {
+    var P = PROFILE;
+    var cards = P.cards.map(function (c) {
+      return '<div class="card"><div class="lbl">' + esc(c.label) + '</div>' +
+        (c.title ? '<div class="ct">' + esc(c.title) + '</div><div class="cb">' + esc(c.body) + '</div>'
+                 : '<div class="cl">' + c.lines.map(esc).join('<br>') + '</div>') + '</div>';
+    }).join('');
+    return '<div class="p-left">' +
+      (P.photo ? '<img class="photo" src="' + esc(P.photo) + '" alt="Portrait of ' + esc(P.name.join(' ')) + '">' : '<div class="photo ph">[YOUR PHOTO]</div>') +
+      '<div class="pname" role="heading" aria-level="1">' + esc(P.name[0]) + '<br>' + esc(P.name[1]) + '</div>' +
+      '<div class="prole">' + esc(P.role) + '</div>' +
+      '<div class="status"><i class="dot"></i>' + esc(P.status) + '</div>' +
+      '<p class="tagline">' + esc(P.tagline) + '</p>' +
+      '<div class="contacts"><span>' + esc(P.email) + '</span>' +
+      '<a href="' + esc(P.github) + '" target="_blank" rel="noopener">' + esc(P.github.replace('https://', '')) + '</a>' +
+      '<a href="' + esc(P.linkedin) + '" target="_blank" rel="noopener">' + esc(P.linkedin.replace('https://www.', '')) + '</a>' +
+      '<span>' + esc(P.place) + '</span></div>' +
+      (P.resume ? '<a class="cta" href="' + esc(P.resume) + '" target="_blank" rel="noopener">Download résumé</a>' : '<span class="cta">Download résumé [ADD LINK]</span>') +
+      '</div>' +
+      '<div class="p-right">' +
+      '<div><div class="lbl">About</div><p class="about">' + esc(P.about) + '</p></div>' +
+      '<div class="cards">' + cards + '</div>' +
+      '<div><div class="lbl">Skills</div><div class="skills"><span class="k1">Primary</span> &nbsp;' + esc(P.skillsPrimary) + '<br><span class="k2">Also</span> &nbsp;&nbsp;&nbsp;&nbsp;' + esc(P.skillsAlso) + '</div></div>' +
+      '</div>';
+  }
+
+  function mobileDetail(p) {
+    var mobileActions = p.id === 'neuro' && p.shot
+      ? '<div class="mactions"><a href="' + esc(p.shot) + '" target="_blank" rel="noopener">Preview</a><a href="' + esc(p.shot) + '" download="neuromorphic-edge-ai-poster.pdf">Download PDF</a></div>'
+      : (p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && p.shots && p.shots.length
+        ? '<div class="mactions">' + p.shots.map(function (shot, i) {
+          return '<a href="' + esc(shot) + '" target="_blank" rel="noopener">Preview ' + (i + 1) + '</a>';
+        }).join('') + '</div>'
+      : '';
+    return '<div class="mmeta">' + esc(p.meta) + '</div>' +
+      '<p class="msum">' + esc(p.summary) + '</p>' +
+      '<div class="lbl">How it works</div>' +
+      '<div class="msteps">' + p.steps.map(function (s) {
+        return '<div class="step"><span class="slab">' + esc(s.label) + '</span><span class="stxt">' + esc(s.text) + '</span></div>';
+      }).join('') + '</div>' +
+      '<div class="mstat"><b>' + esc(p.stat) + '</b><span>' + esc(p.statLabel) + '</span></div>' +
+      '<div class="tags">' + p.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      mobileActions +
+      (p.repo ? '<a class="repo" href="' + esc(p.repo) + '" target="_blank" rel="noopener">View repository</a>' : '');
+  }
+
+  function renderMobile() {
+    $('#mList').innerHTML = PROJECTS.map(function (p) {
+      return '<div class="mp" data-id="' + esc(p.id) + '">' +
+        '<button class="mpb" type="button" aria-expanded="true"><span class="ico">' + icon(p.icon) + '</span>' +
+        '<span class="ntxt"><span class="ntitle">' + esc(cardName(p)) + '</span><span class="nsub">' + esc(p.sub) + '</span><span class="npart">' + esc(p.part) + '</span></span>' +
+        '<span class="chev2" aria-hidden="true">›</span></button>' +
+        '<div class="mpd">' + mobileDetail(p) + '</div></div>';
+    }).join('');
+    $$('.mp', $('#mList')).forEach(function (x) { x.classList.add('open'); });
+  }
+
+  /* ============================================================
+     8. WIRING
+     ============================================================ */
+  function fit() {
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 820, 1.6);
+    stage.style.setProperty('--s', s.toFixed(4));
+  }
+
+  $('#screenProfile').innerHTML = profileHTML();
+  $('#mProfile').innerHTML = profileHTML();
+  renderMobile();
+
+  $('#nextBtn').addEventListener('click', function () { go(2); });
+  $('#home2').addEventListener('click', function () { go(1); });
+  $('#home3').addEventListener('click', function () { go(1); });
+  $('#back3').addEventListener('click', function () { go(2); });
+  $('#lapBtn').addEventListener('click', function () { go(1); });
+  $('#pgPrev').addEventListener('click', function () { go(2, { bank: state.bank - 1 }); });
+  $('#pgNext').addEventListener('click', function () { go(2, { bank: state.bank + 1 }); });
+  $('#projectPrev').addEventListener('click', function () { moveProject(-1); });
+  $('#projectNext').addEventListener('click', function () { moveProject(1); });
+  function closeShot() {
+    $('#shotModal').hidden = true;
+    $('#shotModal').classList.remove('pdf-open');
+    $('#shotFull').removeAttribute('src');
+    $('#shotFullPdf').removeAttribute('src');
+    $('#shotFullPdf').hidden = true;
+    $('#shotFull').hidden = false;
+    $('#shotModalPrev').hidden = true;
+    $('#shotModalNext').hidden = true;
+    $('#shotModalCount').hidden = true;
+    $('#pShot').focus();
+  }
+  function openShot() {
+    if (state.id !== 'neuro' && state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot') return;
+    var image = $('#pShot img');
+    var pdf = $('#pShot iframe');
+    if (pdf) {
+      $('#shotFull').hidden = true;
+      $('#shotModal').classList.add('pdf-open');
+      $('#shotFullPdf').src = pdf.src + '#page=1&zoom=page-width';
+      $('#shotFullPdf').hidden = false;
+    } else if (image) {
+      $('#shotFull').src = image.src;
+      $('#shotFull').alt = image.alt;
+      $('#shotModalPrev').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
+      $('#shotModalNext').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
+      $('#shotModalCount').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
+      updateShotModal();
+    } else {
+      return;
+    }
+    $('#shotModal').hidden = false;
+    $('#shotClose').focus();
+  }
+  $('#pShot').addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.shot-nav')) return;
+    openShot();
+  });
+  function moveShot(delta) {
+    var p = byId(state.id);
+    if (!p || !p.shots || p.shots.length < 2) return;
+    state.shotIndex = (state.shotIndex + delta + p.shots.length) % p.shots.length;
+    updateShotImages(p);
+  }
+  function updateShotImages(p) {
+    var image = $('.shot-gallery img', $('#pShot'));
+    var count = $('.shot-count', $('#pShot'));
+    var modalImage = $('#shotFull');
+    if (image) {
+      image.src = p.shots[state.shotIndex];
+      image.alt = 'Screenshot ' + (state.shotIndex + 1) + ' of ' + p.title;
+      count.textContent = (state.shotIndex + 1) + ' / ' + p.shots.length;
+      image.classList.remove('shot-slide');
+      void image.offsetWidth;
+      image.classList.add('shot-slide');
+    }
+    if (modalImage && !modalImage.hidden) {
+      updateShotModal();
+    }
+  }
+  function updateShotModal() {
+    var p = byId(state.id);
+    if (!p || !p.shots || !p.shots.length) return;
+    var modalImage = $('#shotFull');
+    modalImage.src = p.shots[state.shotIndex];
+    modalImage.alt = 'Screenshot ' + (state.shotIndex + 1) + ' of ' + p.title;
+    $('#shotModalCount').textContent = (state.shotIndex + 1) + ' / ' + p.shots.length;
+    modalImage.classList.remove('shot-slide');
+    void modalImage.offsetWidth;
+    modalImage.classList.add('shot-slide');
+  }
+  function startShotSlideshow(p) {
+    if (shotTimer) window.clearInterval(shotTimer);
+    shotTimer = null;
+    if ((p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && p.shots && p.shots.length > 1) {
+      shotTimer = window.setInterval(function () { moveShot(1); }, 4000);
+    }
+  }
+  $('#pShot').addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.shot-prev')) { e.stopPropagation(); moveShot(-1); }
+    else if (e.target.closest && e.target.closest('.shot-next')) { e.stopPropagation(); moveShot(1); }
+  });
+  $('#shotModalPrev').addEventListener('click', function () { moveShot(-1); });
+  $('#shotModalNext').addEventListener('click', function () { moveShot(1); });
+  $('#shotModal').addEventListener('mouseenter', function () {
+    if (shotTimer) { window.clearInterval(shotTimer); shotTimer = null; }
+  });
+  $('#shotModal').addEventListener('mouseleave', function () {
+    var p = byId(state.id);
+    if (p) startShotSlideshow(p);
+  });
+  $('#pShot').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShot(); }
+  });
+  $('#shotClose').addEventListener('click', closeShot);
+  $('#shotModal').addEventListener('click', function (e) {
+    if (e.target === $('#shotModal')) closeShot();
+  });
+  nodesEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.node') : null;
+    if (b) go(3, { id: b.getAttribute('data-id') });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('#shotModal').hidden) closeShot();
+    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowLeft') moveShot(-1);
+    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowRight') moveShot(1);
+    else if (e.key === 'Escape') { if (state.page === 3) go(2); else if (state.page === 2) go(1); }
+    else if (state.page === 3 && e.key === 'ArrowRight') moveProject(1);
+    else if (state.page === 3 && e.key === 'ArrowLeft') moveProject(-1);
+    else if (state.page === 2 && boards() > 1 && e.key === 'ArrowRight') go(2, { bank: state.bank + 1 });
+    else if (state.page === 2 && boards() > 1 && e.key === 'ArrowLeft') go(2, { bank: state.bank - 1 });
+  });
+  window.addEventListener('hashchange', fromHash);
+  window.addEventListener('resize', fit);
+
+  fit();
+  var start = readHash();
+  state.bank = start.bank || 0;
+  renderBoard(false);
+  state.id = start.id || null;
+  if (start.page === 3) { go(3, { id: start.id, bank: start.bank, fromHash: true }); }
+  else if (start.page === 2) { go(2, { bank: start.bank, fromHash: true }); }
+  else { chrome(); }
+})();
+</script>
+
+</body>
+</html>
