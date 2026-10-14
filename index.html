@@ -172,6 +172,11 @@ i,b{display:block;font-style:normal}
 @keyframes shotSlide{from{opacity:.25;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 .shot-close{position:absolute;right:18px;top:14px;border:1px solid var(--edge-hi);border-radius:999px;background:rgba(67,209,168,.08);padding:7px 14px;font-family:var(--f-mono);font-size:12px}
 .shot-close:hover,.shot-close:focus-visible{background:rgba(67,209,168,.22);outline:none}
+.profile-modal{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:32px;box-sizing:border-box;background:rgba(5,12,10,.96)}
+.profile-modal[hidden]{display:none}
+.profile-modal img{max-width:min(90vw,720px);max-height:85vh;width:auto;height:auto;object-fit:contain;border:1px solid var(--edge-hi);border-radius:8px}
+.profile-modal-close{position:absolute;right:24px;top:20px;border:1px solid var(--edge-hi);border-radius:999px;background:rgba(67,209,168,.08);padding:7px 14px;font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.profile-modal-close:hover,.profile-modal-close:focus-visible{background:rgba(67,209,168,.22);outline:none}
 .project-nav{position:absolute;right:28px;top:18px;display:flex;align-items:center;gap:6px}
 .project-nav .pill{padding:9px 14px;font-size:14px;line-height:1}
 .project-nav-label{min-width:92px;text-align:center;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
@@ -184,6 +189,8 @@ i,b{display:block;font-style:normal}
 .p-left{width:318px;flex:none;display:flex;flex-direction:column;gap:11px}
 .p-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
 .photo{width:148px;height:148px;box-sizing:border-box;border-radius:14px;border:1.5px solid var(--edge-hi);background:var(--panel);object-fit:cover}
+.photo.has-image{cursor:zoom-in}
+.photo.has-image:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .photo.ph{display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--mute)}
 .pname{margin:0;font-family:var(--f-display);font-weight:800;font-size:38px;line-height:.98;letter-spacing:-.02em}
 .prole{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
@@ -426,6 +433,10 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
 <div class="mlist" id="mList"></div>
 </section>
 </div></div>
+<div class="profile-modal" id="profileModal" hidden role="dialog" aria-modal="true" aria-label="Full profile photo">
+<button class="profile-modal-close" id="profileModalClose" type="button">Close ×</button>
+<img id="profileFull" alt="">
+</div>
 
 <script>
 (function () {
@@ -443,8 +454,8 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
     github: 'https://github.com/28harivijay',
     linkedin: 'https://www.linkedin.com/in/harivijay-rg',
     place: 'Waterloo, Ontario',
-    photo: '',    // e.g. 'img/me.jpg'  (leave '' to show the [YOUR PHOTO] box)
-    resume: '',   // e.g. 'resume.pdf'  (leave '' to show [ADD LINK])
+    photo: 'LI-profile-1.jpg',    // e.g. 'img/me.jpg'  (leave '' to show the [YOUR PHOTO] box)
+    resume: 'Harivijay-Resume.pdf',   // e.g. 'resume.pdf'  (leave '' to show [ADD LINK])
     about: 'Second-year Computer Engineering student at the University of Waterloo. I like the work where a sensor reading turns into something useful: C++ firmware on ESP32 boards, plus Python services for the AI side. [ADD: one line about what you do outside of code]',
     cards: [
       { label: 'Education', title: 'BASc Computer Engineering', body: 'University of Waterloo, 2025 to present. Digital Computers, Numerical Methods, C++ (DSA, OOP), Embedded Systems.' },
@@ -872,7 +883,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
                  : '<div class="cl">' + c.lines.map(esc).join('<br>') + '</div>') + '</div>';
     }).join('');
     return '<div class="p-left">' +
-      (P.photo ? '<img class="photo" src="' + esc(P.photo) + '" alt="Portrait of ' + esc(P.name.join(' ')) + '">' : '<div class="photo ph">[YOUR PHOTO]</div>') +
+      (P.photo ? '<img class="photo has-image" src="' + esc(P.photo) + '" alt="Portrait of ' + esc(P.name.join(' ')) + '" tabindex="0" role="button" aria-label="Open full profile photo">' : '<div class="photo ph">[YOUR PHOTO]</div>') +
       '<div class="pname" role="heading" aria-level="1">' + esc(P.name[0]) + '<br>' + esc(P.name[1]) + '</div>' +
       '<div class="prole">' + esc(P.role) + '</div>' +
       '<div class="status"><i class="dot"></i>' + esc(P.status) + '</div>' +
@@ -932,6 +943,26 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
   $('#screenProfile').innerHTML = profileHTML();
   $('#mProfile').innerHTML = profileHTML();
   renderMobile();
+  function closeProfilePhoto() {
+    $('#profileModal').hidden = true;
+    $('#profileFull').removeAttribute('src');
+  }
+  function openProfilePhoto(image) {
+    $('#profileFull').src = image.src;
+    $('#profileFull').alt = image.alt;
+    $('#profileModal').hidden = false;
+    $('#profileModalClose').focus();
+  }
+  $$('.photo.has-image').forEach(function (photo) {
+    photo.addEventListener('click', function () { openProfilePhoto(photo); });
+    photo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProfilePhoto(photo); }
+    });
+  });
+  $('#profileModalClose').addEventListener('click', closeProfilePhoto);
+  $('#profileModal').addEventListener('click', function (e) {
+    if (e.target === $('#profileModal')) closeProfilePhoto();
+  });
 
   $('#nextBtn').addEventListener('click', function () { go(2); });
   $('#home2').addEventListener('click', function () { go(1); });
@@ -1045,7 +1076,8 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
     if (b) go(3, { id: b.getAttribute('data-id') });
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !$('#shotModal').hidden) closeShot();
+    if (e.key === 'Escape' && !$('#profileModal').hidden) closeProfilePhoto();
+    else if (e.key === 'Escape' && !$('#shotModal').hidden) closeShot();
     else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowLeft') moveShot(-1);
     else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowRight') moveShot(1);
     else if (e.key === 'Escape') { if (state.page === 3) go(2); else if (state.page === 2) go(1); }
