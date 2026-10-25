@@ -553,7 +553,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
         { label: 'Answer', text: 'LangChain passes those chunks to Groq, which writes an answer based on the document.' }
       ],
       stat: '3', statLabel: 'file types supported: PDF, DOCX and XLSX',
-      tags: ['React', 'Tailwind CSS', 'FastAPI', 'LangChain', 'FAISS', 'HuggingFace'], repo: 'https://github.com/28harivijay/document-qa-agent', shot: ''
+      tags: ['React', 'Tailwind CSS', 'FastAPI', 'LangChain', 'FAISS', 'HuggingFace'], repo: 'https://github.com/28harivijay/document-qa-agent', shot: '', shots: ['Files.png', 'Pdf.png', 'docx.png', 'excel.png']
     },
     {
       id: 'project7', icon: 'pi', title: '[PROJECT NAME]', sub: '[ADD: short description]', part: 'Raspberry Pi',
@@ -769,7 +769,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
     var shot = $('#pShot');
     var shots = p.shots && p.shots.length ? p.shots : (p.shot ? [p.shot] : []);
     state.shotIndex = 0;
-    var canOpenShot = (p.id === 'neuro' || p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && shots.length > 0;
+    var canOpenShot = (p.id === 'neuro' || p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot' || p.id === 'documind') && shots.length > 0;
     shot.classList.toggle('has-image', canOpenShot);
     shot.toggleAttribute('role', canOpenShot);
     if (canOpenShot) {
@@ -792,9 +792,9 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
         '<button class="shot-nav shot-next" type="button" aria-label="Next screenshot">›</button>' +
         '<span class="shot-count">1 / ' + shots.length + '</span></div>';
     }
-    $('#shotModalPrev').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
-    $('#shotModalNext').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
-    $('#shotModalCount').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot') || shots.length < 2;
+    $('#shotModalPrev').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot' && p.id !== 'documind') || shots.length < 2;
+    $('#shotModalNext').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot' && p.id !== 'documind') || shots.length < 2;
+    $('#shotModalCount').hidden = (p.id !== 'prism' && p.id !== 'jobrec' && p.id !== 'prbot' && p.id !== 'documind') || shots.length < 2;
     startShotSlideshow(p);
     var repo = $('#pRepo');
     if (p.id === 'neuro' && p.shot) {
@@ -904,7 +904,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
   function mobileDetail(p) {
     var mobileActions = p.id === 'neuro' && p.shot
       ? '<div class="mactions"><a href="' + esc(p.shot) + '" target="_blank" rel="noopener">Preview</a><a href="' + esc(p.shot) + '" download="neuromorphic-edge-ai-poster.pdf">Download PDF</a></div>'
-      : (p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && p.shots && p.shots.length
+      : (p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot' || p.id === 'documind') && p.shots && p.shots.length
         ? '<div class="mactions">' + p.shots.map(function (shot, i) {
           return '<a href="' + esc(shot) + '" target="_blank" rel="noopener">Preview ' + (i + 1) + '</a>';
         }).join('') + '</div>'
@@ -986,7 +986,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
     $('#pShot').focus();
   }
   function openShot() {
-    if (state.id !== 'neuro' && state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot') return;
+    if (state.id !== 'neuro' && state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot' && state.id !== 'documind') return;
     var image = $('#pShot img');
     var pdf = $('#pShot iframe');
     if (pdf) {
@@ -997,9 +997,9 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
     } else if (image) {
       $('#shotFull').src = image.src;
       $('#shotFull').alt = image.alt;
-      $('#shotModalPrev').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
-      $('#shotModalNext').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
-      $('#shotModalCount').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot';
+      $('#shotModalPrev').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot' && state.id !== 'documind';
+      $('#shotModalNext').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot' && state.id !== 'documind';
+      $('#shotModalCount').hidden = state.id !== 'prism' && state.id !== 'jobrec' && state.id !== 'prbot' && state.id !== 'documind';
       updateShotModal();
     } else {
       return;
@@ -1047,7 +1047,7 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
   function startShotSlideshow(p) {
     if (shotTimer) window.clearInterval(shotTimer);
     shotTimer = null;
-    if ((p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot') && p.shots && p.shots.length > 1) {
+    if ((p.id === 'prism' || p.id === 'jobrec' || p.id === 'prbot' || p.id === 'documind') && p.shots && p.shots.length > 1) {
       shotTimer = window.setInterval(function () { moveShot(1); }, 4000);
     }
   }
@@ -1078,8 +1078,8 @@ a.cta:hover{text-decoration:none;background:#6FE0BF}
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !$('#profileModal').hidden) closeProfilePhoto();
     else if (e.key === 'Escape' && !$('#shotModal').hidden) closeShot();
-    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowLeft') moveShot(-1);
-    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot') && e.key === 'ArrowRight') moveShot(1);
+    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot' || state.id === 'documind') && e.key === 'ArrowLeft') moveShot(-1);
+    else if (!$('#shotModal').hidden && (state.id === 'prism' || state.id === 'jobrec' || state.id === 'prbot' || state.id === 'documind') && e.key === 'ArrowRight') moveShot(1);
     else if (e.key === 'Escape') { if (state.page === 3) go(2); else if (state.page === 2) go(1); }
     else if (state.page === 3 && e.key === 'ArrowRight') moveProject(1);
     else if (state.page === 3 && e.key === 'ArrowLeft') moveProject(-1);
